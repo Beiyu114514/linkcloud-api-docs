@@ -5,6 +5,7 @@
 # Authoring notes and tooling config, not part of the published site
 AGENTS.md
 skills-lock.json
+deploy/
 
 # Draft content
 drafts/

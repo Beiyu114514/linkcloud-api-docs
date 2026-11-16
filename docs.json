@@ -8,6 +8,11 @@
     "dark": "#0B7DB5"
   },
   "favicon": "/favicon.svg",
+  "seo": {
+    "metatags": {
+      "canonical": "https://docs.linkcloud.sh"
+    }
+  },
   "navigation": {
     "pages": [
       {
