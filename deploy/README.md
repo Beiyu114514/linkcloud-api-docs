@@ -2,7 +2,7 @@
 
 文档站点托管在 Mintlify，本目录放自定义域名的接入配置。
 
-> **当前采用：路线 B 的 1Panel 反向代理**，上游为 `https://linkcloud-api.mintlify.site`。路线 A（CNAME）保留作为可选方案。
+> **当前采用：路线 B 的 1Panel 反向代理（已上线）**，上游为 `https://linkcloud-api.mintlify.site`，对外地址 `https://docs.linkcloud.sh`。路线 A（CNAME）保留作为可选方案。
 
 ## 前置条件
 
@@ -14,7 +14,7 @@
 | | A. CNAME 直连（可选） | B. 自建反向代理（当前采用） |
 | --- | --- | --- |
 | 做法 | `docs.linkcloud.sh` CNAME 到 `cname.mintlify.builders` | 自己的 Cloudflare Worker / nginx 转发到 `<子域>.mintlify.site` |
-| TLS | Mintlify 自动签发 | 你自己的证书 |
+| TLS | Mintlify 自动签发 | 复用 Cloudflare Origin 通配证书 `*.linkcloud.sh` |
 | 官方支持 | 是 | Mintlify 官方只提供**子路径**（`example.com/docs`）的反向代理方案，整站子域代理属于非标准用法 |
 | 适合 | 只想要一个文档域名 | 想把流量留在自己的 Cloudflare 里，接 WAF、限流、访问日志 |
 | 代价 | Cloudflare 侧需用灰云或 Full (strict) | CSP、分析上报、重定向的 Host 处理都要自己保证 |
@@ -92,29 +92,56 @@ curl -sS https://docs.linkcloud.sh/llms.txt | head -5
 
 上游：`https://linkcloud-api.mintlify.site`（已发布，返回 200）。
 
-### 1Panel（当前采用）
+### 1Panel（当前采用，已上线）
 
-配置文件见 `deploy/1panel-reverse-proxy.conf`，操作路径：
+线上实例：网站 ID 5，HTTPS，反向代理，`root.conf` 内容与 `deploy/1panel-reverse-proxy.conf` 一致。
 
-1. **网站 → 创建网站**，类型选静态网站，域名 `docs.linkcloud.sh`。
-2. **网站 → 配置 → HTTPS**，申请 Let's Encrypt 证书并开启强制 HTTPS。
+| 项目 | 取值 |
+| --- | --- |
+| 网站名 / 域 | `docs.linkcloud.sh`（分组 Default） |
+| 类型 | 反向代理（proxy） |
+| 上游 | `https://linkcloud-api.mintlify.site` |
+| HTTPS | 复用已上传的 `*.linkcloud.sh` Cloudflare Origin 证书（有效期至 2041），开启强制 HTTPS |
+| DNS | Cloudflare `A docs.linkcloud.sh → 161.33.4.65`，橙云 |
+| 配置文件 | `/opt/1panel/www/sites/docs.linkcloud.sh/proxy/root.conf` |
+| 日志 | `/opt/1panel/www/sites/docs.linkcloud.sh/log/{access,error}.log` |
+
+面板里的操作路径：
+
+1. **网站 → 创建网站**，类型选**反向代理**，域名 `docs.linkcloud.sh`，代理地址填 `https://linkcloud-api.mintlify.site`。
+2. **网站 → 配置 → HTTPS**，勾选证书时选已上传的 `*.linkcloud.sh`，开启强制 HTTPS。
+   这台机器的站点都走 Cloudflare 橙云，用 Cloudflare Origin 通配证书即可，不必申请 Let's Encrypt
+   （`*.linkcloud.sh` 的签发与续期在 Cloudflare 侧完成）。
 3. **网站 → 配置 → 反向代理 → 添加反向代理**：
 
    | 字段 | 值 |
    | --- | --- |
-   | 名称 | `mintlify-docs` |
+   | 名称 | `root` |
+   | 匹配 | `/` |
    | 代理地址 | `https://linkcloud-api.mintlify.site` |
    | 发送域名 | `linkcloud-api.mintlify.site` |
-   | 缓存 | 关闭 |
+   | SNI | 开 |
+   | 缓存 | 关 |
 
-4. **网站 → 配置 → 配置文件**，确认生成的 `location ^~ /` 里包含 `proxy_ssl_server_name on;`。1Panel 默认不一定加这一行，缺了它 HTTPS 上游会握手失败。
-5. 保存并重载 OpenResty。
+4. 打开 `proxy/root.conf`，把 1Panel 默认生成的 `proxy_set_header Host $host;` 改成上游域名，
+   `proxy_ssl_name $proxy_host;` 改成 `linkcloud-api.mintlify.site`，并补上 `proxy_redirect`。
+   完整内容以 `deploy/1panel-reverse-proxy.conf` 为准。
+5. 保存并重载 OpenResty（面板改配置会自动重载）。
 
 三个必须满足的条件：
 
 - `Host` 用上游域名，**不要**透传 `docs.linkcloud.sh`。
-- HTTPS 上游开启 SNI（`proxy_ssl_server_name on` + `proxy_ssl_name`）。
-- `/.well-known/acme-challenge/` 不要被代理走，否则证书续期失败。
+- HTTPS 上游开启 SNI（`proxy_ssl_server_name on` + `proxy_ssl_name linkcloud-api.mintlify.site`）。
+- `/.well-known/acme-challenge/` 不要被代理走。1Panel 生成的 server 块里这条 location 排在
+  `include proxy/*.conf` 之前，`^~` 前缀会优先命中，保持不动即可。
+
+验证（本机 DNS 解析可能滞后于公共 DNS，用 `--resolve` 指定 Cloudflare 地址更稳）：
+
+```bash
+curl -sSk -o /dev/null -w '%{http_code}\n' --resolve docs.linkcloud.sh:443:127.0.0.1 https://docs.linkcloud.sh/
+curl -sS -o /dev/null -w '%{http_code}\n' --resolve docs.linkcloud.sh:443:$(dig +short docs.linkcloud.sh @1.1.1.1 | head -1) https://docs.linkcloud.sh/
+curl -sS https://docs.linkcloud.sh/index.md | head -5
+```
 
 ### Cloudflare Worker
 
@@ -147,6 +174,19 @@ Worker 用绝对 URL 请求上游，因此 `Host` 会自动变成 `<子域>.mint
 - **重定向**：上游返回的 `Location` 若指向 `<子域>.mintlify.site`，Worker 会改写成正式域名；nginx 需要在 `proxy_redirect` 里处理。
 - **分析**：代理方案下最容易漏掉的是 `/_mintlify/api/` 的 POST 上报。上线后在仪表盘确认能看到访问数据。
 - **sitemap 与 llms.txt 的绝对地址**：用代理接入时 Mintlify 不认为自定义域名已注册，`/sitemap.xml` 和 `/llms.txt` 里的链接仍指向默认地址（当前是 `linkcloud-api.mintlify.app`）。页面自身的 `canonical` 与 `og:url` 已指向 `https://docs.linkcloud.sh`，SEO 不受影响；若需要 sitemap 内地址也正确，只能改回 CNAME 接入并在 Mintlify 注册域名。
+
+### 上线核对（2026-11-16 已验证）
+
+| 检查项 | 结果 |
+| --- | --- |
+| `https://docs.linkcloud.sh/` | 200，`<title>LinkCloud 文档</title>` |
+| 主要页面 `/quickstart`、`/models`、`/legal/terms`、`/faq` | 200 |
+| `canonical`、`og:url` | `https://docs.linkcloud.sh` |
+| `/index.md`、`/llms.txt` | 200（`llms.txt` 内链接仍是 `linkcloud-api.mintlify.app`） |
+| `/_mintlify/assets/*` 静态资源 | 200 |
+| `/_mintlify/api/v1/e`（分析上报 POST） | 400（与直连上游一致，请求体不完整时的正常响应） |
+| HTTP → HTTPS | 301 |
+| 响应头 | CSP、`cache-control: no-store` 由上游透传，未被中间层覆盖；HSTS 出现两条（上游一条、1Panel 一条），无害 |
 
 ## 参考
 

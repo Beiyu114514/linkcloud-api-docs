@@ -57,4 +57,4 @@ mint broken-links
 
 ## 发布
 
-仓库接入 Mintlify 的 GitHub App 后，推送到默认分支即自动部署。自定义域名的配置见 [Mintlify 文档](https://mintlify.com/docs)。
+仓库接入 Mintlify 的 GitHub App 后，推送到默认分支即自动部署。`docs.linkcloud.sh` 的自定义域名通过 1Panel 反向代理接入，配置与核对清单见 [deploy/README.md](./deploy/README.md)。
