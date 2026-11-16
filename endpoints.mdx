@@ -1,0 +1,82 @@
+---
+title: "API 端点"
+description: "LinkCloud 的 API 地址：默认端点、中国优化线路和源站直连线路，以及各自的适用客户端。"
+keywords: ["API 端点", "Base URL", "ANTHROPIC_BASE_URL", "OPENAI_BASE_URL", "线路"]
+---
+
+配置客户端时，最重要的两个字段是**端点地址**和 **API Key**。端点由协议格式决定：OpenAI 格式的地址以 `/v1` 结尾，Anthropic 格式不带 `/v1`。
+
+## 默认端点
+
+| 协议格式 | Base URL | 典型请求路径 |
+| --- | --- | --- |
+| OpenAI 格式 | `https://api.linkcloud.sh/v1` | `POST /chat/completions`、`POST /responses` |
+| Anthropic 格式 | `https://api.linkcloud.sh` | `POST /v1/messages` |
+| Gemini 格式 | `https://api.linkcloud.sh` | `POST /v1beta/models/<模型 ID>:generateContent` |
+
+在 [API 密钥页面](https://api.linkcloud.sh/keys) 顶部的 **API Endpoints** 区域可以一键复制，并直接做**测速**。
+
+## 备用线路
+
+部分网络环境访问默认线路较慢或不稳定。以下是控制台中提供的可选线路，按名称和说明选择即可：
+
+| 名称 | 地址 | 协议 | 说明 |
+| --- | --- | --- | --- |
+| Anthropic 端点 | `https://api.linkcloud.sh` | Anthropic | 支持 Anthropic 请求格式，Claude Code 适用 |
+| OpenAI 端点 中国优化 | `https://api-us-co.linkcloud.sh/v1` | OpenAI | 支持 OpenAI Completions / Responses 请求格式，Codex 适用 |
+| Anthropic 端点 中国优化 | `https://api-us-co.linkcloud.sh` | Anthropic | 支持 Anthropic 请求格式，Claude Code 适用 |
+| OpenAI 端点 源站直连 | `https://api-direct.linkcloud.sh/v1` | OpenAI | OVH 高防源站直连，需要配合代理使用 |
+| Anthropic 端点 源站直连 | `https://api-direct.linkcloud.sh` | Anthropic | OVH 高防源站直连，需要配合代理使用 |
+
+<Note>
+客户端里填地址时不要自行拼接 `/chat/completions` 或 `/v1/messages`，客户端会自动补全路径。写多了路径会得到 404。
+</Note>
+
+## 认证
+
+API Key 通过请求头传递，客户端通常会自动处理。三种请求头都被接受：
+
+| 请求头 | 典型使用者 |
+| --- | --- |
+| `Authorization: Bearer <Key>` | OpenAI 兼容客户端、SDK |
+| `x-api-key: <Key>` | Anthropic 格式客户端 |
+| `x-goog-api-key: <Key>` | Gemini 格式客户端 |
+
+未携带任何 Key 时，接口会返回：
+
+```json
+{
+  "code": "API_KEY_REQUIRED",
+  "message": "API key is required in Authorization header (Bearer scheme), x-api-key header, or x-goog-api-key header"
+}
+```
+
+<Warning>
+不要把 Key 写在 URL 查询参数里。使用查询参数传 Key 属于已废弃用法，请改用请求头。
+</Warning>
+
+## 该选哪个地址
+
+地址由客户端决定，而不是由模型厂商决定：
+
+| 客户端配置项 | 使用格式 |
+| --- | --- |
+| `ANTHROPIC_BASE_URL` | Anthropic 格式，地址不带 `/v1` |
+| `OPENAI_BASE_URL` 或标注「OpenAI 兼容」 | OpenAI 格式，地址以 `/v1` 结尾 |
+
+`Base URL` 只是通用字段名，不能据此判断协议。分组必须支持客户端实际发送的接口格式，例如 Codex 走 Responses 接口，只开放 Anthropic 格式的分组无法承接。
+
+## 健康检查
+
+```bash
+curl https://api.linkcloud.sh/health
+```
+
+返回 `{"status":"ok"}` 表示当前网络可以访问网关。这不能排除具体模型或上游故障。整体可用性可以看[服务状态页](https://codex-status.linkcloud.sh)。
+
+## 相关入口
+
+- [协议与兼容性](/protocols) — 各协议支持的接口与示例请求
+- [创建 API Key](/create-api-key) — 先拿到密钥
+- [排障](/troubleshooting) — 连不上或配置无效时的排查顺序
+- [错误码](/errors) — 认证与请求错误的完整清单

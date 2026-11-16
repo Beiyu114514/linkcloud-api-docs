@@ -1,0 +1,157 @@
+---
+title: "Codex"
+description: "把 Codex CLI 和 Codex App 接到 LinkCloud：配置 config.toml 与 auth.json，选择认证模式，并验证 Responses 调用。"
+keywords: ["Codex", "Codex CLI", "config.toml", "wire_api", "responses"]
+---
+
+`Codex` 是 OpenAI 的编程 Agent，CLI 和桌面端共用同一份配置。它走 OpenAI Responses 协议，端点填以 `/v1` 结尾的地址。
+
+## 安装
+
+<CodeGroup>
+
+```bash npm
+npm install -g @openai/codex
+```
+
+```bash npx
+npx @openai/codex
+```
+
+</CodeGroup>
+
+安装后运行 `codex --help` 确认可用。使用桌面端时按系统下载官方安装包即可。
+
+## 选择分组
+
+GPT 系列模型分布在多个分组里，价格和稳定性不同：
+
+| 分组 | 倍率 | 说明 |
+| --- | --- | --- |
+| `chatgpt_plus` | 1.5 | 支持满血 GPT6.1，在可用性上尽力而为 |
+| `chatgpt_pro` | 3 | 优先保证可用性，不含日抛 PLUS 的官方订阅稳定渠道 |
+| `chatgpt_pro_official` | 10 | ChatGPT 正价渠道，适合企业接入 |
+
+## 配置
+
+### 方式一：控制台「使用密钥」或导入 CC-Switch
+
+在密钥列表点击**使用密钥**并选择 `Codex CLI`，页面会生成 `config.toml` 和 `auth.json` 的内容。也可以点**导入到 CCS**，由 [CC-Switch](/clients/cc-switch) 接管配置。
+
+### 方式二：手动配置
+
+<Steps>
+  <Step title="确认配置目录">
+    - macOS / Linux：`~/.codex`
+    - Windows：`%userprofile%\.codex`
+
+    先启动一次 Codex 让它初始化目录，也可以手动创建：
+
+    ```bash
+    mkdir -p ~/.codex
+    ```
+  </Step>
+
+  <Step title="写入 config.toml">
+    把下面的内容放在 `config.toml` 开头。模型换成所选分组内的完整 ID。
+
+    ```toml
+    model_provider = "linkcloud"
+    model = "gpt-6-astra"
+    review_model = "gpt-6.1-sol"
+    model_reasoning_effort = "xhigh"
+
+    [model_providers.linkcloud]
+    name = "OpenAI"
+    base_url = "https://api.linkcloud.sh/v1"
+    wire_api = "responses"
+    requires_openai_auth = true
+    ```
+  </Step>
+
+  <Step title="写入 auth.json">
+    在同一目录创建 `auth.json`：
+
+    ```json
+    {
+      "OPENAI_API_KEY": "YOUR_LINKCLOUD_API_KEY"
+    }
+    ```
+
+    部分版本改用环境变量 `OPENAI_API_KEY`，两种方式择一即可。
+  </Step>
+
+  <Step title="重启客户端">
+    保存后**完全退出并重新启动** Codex Desktop 或 CLI，然后新建一个任务，让客户端重建工具注册表。
+  </Step>
+</Steps>
+
+<Warning>
+如果目录里已有 `config.toml`，合并配置而不是整体覆盖，避免丢失其他设置。
+</Warning>
+
+## 认证模式
+
+控制台在生成 Codex 配置时提供两种模式：
+
+| 模式 | 适用场景 |
+| --- | --- |
+| 兼容模式 | 日常请求。把密钥写入 `auth.json`，不影响已有登录状态 |
+| API Key 模式 | 仅当 Codex Desktop 需要调用本地图片工具时使用 |
+
+切换模式后同样需要完全重启客户端并新建任务。
+
+## WebSocket（可选）
+
+部分分组的模型支持通过 WebSocket 使用 Responses 接口。只有在客户端和服务端都支持时才开启；不确定时保持关闭。在 `config.toml` 的供应商表中加入：
+
+```toml
+[model_providers.linkcloud]
+name = "OpenAI"
+base_url = "https://api.linkcloud.sh/v1"
+wire_api = "responses"
+requires_openai_auth = true
+supports_websockets = true
+
+[features]
+responses_websockets_v2 = true
+```
+
+<Note>
+复合 Key 不支持 WebSocket。使用复合 Key 时请关闭该选项。
+</Note>
+
+## 验证接入
+
+```bash
+codex --help
+codex exec "只回复 OK"
+```
+
+这会发起真实请求并产生费用。收到回复后到[使用记录](https://api.linkcloud.sh/usage)核对模型与扣费。
+
+网络访问默认线路不稳定时，把 `base_url` 换成 **OpenAI 端点 中国优化**（`https://api-us-co.linkcloud.sh/v1`）。线路列表见 [API 端点](/endpoints#备用线路)。
+
+## codex-auto-review
+
+Codex 会用 `codex-auto-review` 这个模型名发起自动审查请求。如果分组里没有同名模型，可以在 Key 上配置**模型重定向**，把 `codex-auto-review` 映射到分组内实际存在的模型，例如 `gpt-6.1-sol`。
+
+配置位置：编辑密钥时的**模型重定向**，见[创建 API Key](/create-api-key#模型控制)。
+
+## 常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 报模型不存在 | 核对分组内是否有该模型 ID，或配置模型重定向 |
+| 配置后行为没变化 | 必须完全退出客户端并新建任务 |
+| WebSocket 握手失败 | 关闭 WebSocket 选项，改用普通 HTTP |
+| 认证失败 | 确认 `auth.json` 或 `OPENAI_API_KEY` 中的密钥完整、无多余空格或换行 |
+
+完整的排查顺序见[排障](/troubleshooting)，错误原文对照见[错误码](/errors)。
+
+## 相关入口
+
+- [API 端点](/endpoints) — 地址与认证方式
+- [协议与兼容性](/protocols#openai-responses) — Responses 接口示例
+- [模型与分组](/models) — GPT 系列模型清单
+- [CC-Switch](/clients/cc-switch) — 图形化管理 Codex 配置

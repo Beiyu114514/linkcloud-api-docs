@@ -1,0 +1,110 @@
+---
+title: "协议与兼容性"
+description: "LinkCloud 支持的请求格式：OpenAI Chat Completions、OpenAI Responses、Anthropic Messages、Gemini 与图片接口。"
+keywords: ["协议", "OpenAI 兼容", "Responses", "Anthropic Messages", "Gemini", "图片接口"]
+---
+
+LinkCloud 是一个协议转换网关：同一个模型可能同时支持多种请求格式，具体支持哪些取决于**分组**。客户端用哪种格式，分组就必须支持哪种格式。
+
+## 支持概览
+
+| 协议格式 | 端点 | 常见客户端 |
+| --- | --- | --- |
+| OpenAI Chat Completions | `https://api.linkcloud.sh/v1` | OpenCode、各类「OpenAI 兼容」工具、SDK |
+| OpenAI Responses | `https://api.linkcloud.sh/v1` | Codex CLI / Codex App |
+| Anthropic Messages | `https://api.linkcloud.sh` | Claude Code |
+| Gemini | `https://api.linkcloud.sh` | Gemini 原生协议的客户端与 SDK |
+| 图片生成 / 编辑 | `https://api.linkcloud.sh/v1` | 创作台、图片客户端与 SDK |
+
+各分组支持的协议在[模型广场](https://api.linkcloud.sh/models)的模型详情里可以看到。例如 `gpt_image` 分组的模型只提供图片生成与编辑接口，`claude_*` 分组的模型提供 Anthropic Messages 和 OpenAI 两种格式。
+
+## OpenAI Chat Completions
+
+最通用的格式，也是绝大多数「OpenAI 兼容」客户端的默认选择。
+
+```bash
+curl https://api.linkcloud.sh/v1/chat/completions \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6-astra",
+    "messages": [{"role": "user", "content": "只回复 OK"}],
+    "stream": false
+  }'
+```
+
+文本位于响应的 `choices` 字段。
+
+## OpenAI Responses
+
+Codex 使用这一接口。与 Chat Completions 的差别在于输入用 `input` 字段，输出文本位于 `output`。
+
+```bash
+curl https://api.linkcloud.sh/v1/responses \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6-astra",
+    "input": "只回复 OK",
+    "stream": false
+  }'
+```
+
+部分分组的模型还支持通过 WebSocket 使用 Responses 接口。复合 Key 不支持 WebSocket。
+
+## Anthropic Messages
+
+Claude Code 使用这一接口。它可以走 `Authorization: Bearer`，也可以走 `x-api-key`。
+
+```bash
+curl https://api.linkcloud.sh/v1/messages \
+  -H "x-api-key: $KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "claude-sonnet-4-5",
+    "max_tokens": 128,
+    "messages": [{"role": "user", "content": "只回复 OK"}]
+  }'
+```
+
+文本位于响应的 `content` 字段。
+
+## Gemini
+
+Gemini 原生协议把模型 ID 写在路径里，请求和响应结构与 OpenAI 格式不同。未携带密钥时返回的是 Google 风格的结构：
+
+```json
+{
+  "error": {
+    "code": 401,
+    "message": "API key is required",
+    "status": "UNAUTHENTICATED"
+  }
+}
+```
+
+## 图片接口
+
+图片生成与编辑走 OpenAI 风格的接口：
+
+| 接口 | 用途 |
+| --- | --- |
+| `POST /v1/images/generations` | 根据提示词生成图片 |
+| `POST /v1/images/edits` | 基于已有图片编辑或局部重绘 |
+
+`gpt_image` 分组按张计费，价格只由生成图片的实际尺寸（1K / 2K / 4K）决定。不想写代码时可以直接用[创作台](/creative)。
+
+## 模型 ID 与协议的关系
+
+- 请求里的模型 ID 必须是分组内的**完整 ID**，建议从模型广场直接复制，不要简写。
+- 同一个模型在不同分组里可能是同一 ID，但价格、协议和上游不同。
+- 使用[复合 Key](/create-api-key#模型控制)时，模型 ID 需要带分组前缀，写成 `前缀/模型ID`。
+- 如果客户端和服务端对模型名的理解不一致，可用 Key 的**模型重定向**把客户端发送的名字映射到具体模型。
+
+## 相关入口
+
+- [API 端点](/endpoints) — 地址与认证
+- [模型与分组](/models) — 每个分组的具体模型清单
+- [排障](/troubleshooting) — 单独测试 Key、端点和协议
+- [创建 API Key](/create-api-key) — 复合 Key 与模型重定向

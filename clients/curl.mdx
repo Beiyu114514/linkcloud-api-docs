@@ -1,0 +1,129 @@
+---
+title: "通用接入与自建程序"
+description: "用 curl 或 OpenAI SDK 直接调用 LinkCloud，并逐步确认 Key、端点和协议都正确。"
+keywords: ["curl", "OpenAI SDK", "自建程序", "接入测试"]
+---
+
+不依赖任何编程客户端，也可以直接用 `curl` 或 SDK 调用 LinkCloud。这一页的命令也适合在排障时确认到底是哪一环出了问题。
+
+## 准备
+
+```bash
+export KEY="YOUR_LINKCLOUD_API_KEY"
+export BASE="https://api.linkcloud.sh"
+```
+
+<Warning>
+不要把密钥写进会被共享的脚本、截图或工单里。测试结束后可以用 `unset KEY` 清掉。
+</Warning>
+
+## 第一步：查询模型列表
+
+```bash
+curl -sS -i "$BASE/v1/models" -H "Authorization: Bearer $KEY"
+```
+
+这个请求不产生推理费用，可以用来确认认证是否通过：
+
+| 返回 | 说明 |
+| --- | --- |
+| 模型列表 | 认证通过，可以继续下一步 |
+| `401` | 认证失败，检查 Key 和请求头 |
+| `403` | 请求被拒绝，按返回信息检查分组、权限或额度 |
+
+模型列表返回正常，不代表推理接口和所有模型都可用。
+
+## 第二步：发送最小推理请求
+
+以下请求**会产生费用**。把 `MODEL_ID` 换成所选分组支持的完整模型 ID，按客户端实际使用的协议选一条执行即可。
+
+<CodeGroup>
+
+```bash OpenAI Chat Completions
+curl -sS -i "$BASE/v1/chat/completions" \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"MODEL_ID","messages":[{"role":"user","content":"只回复 OK"}],"stream":false}'
+```
+
+```bash OpenAI Responses（Codex）
+curl -sS -i "$BASE/v1/responses" \
+  -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"MODEL_ID","input":"只回复 OK","stream":false}'
+```
+
+```bash Anthropic Messages（Claude Code）
+curl -sS -i "$BASE/v1/messages" \
+  -H "x-api-key: $KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -H "Content-Type: application/json" \
+  -d '{"model":"MODEL_ID","max_tokens":128,"messages":[{"role":"user","content":"只回复 OK"}],"stream":false}'
+```
+
+</CodeGroup>
+
+返回 2xx 且响应里包含模型生成的文本，说明这组 Key、模型和协议的非流式调用成功。文本位置：Chat Completions 在 `choices`，Responses 在 `output`，Messages 在 `content`。
+
+## 第三步：用 SDK 调用
+
+OpenAI SDK 只要改 `base_url` 就能直接用：
+
+```python title="python"
+from openai import OpenAI
+
+client = OpenAI(
+    api_key="YOUR_LINKCLOUD_API_KEY",
+    base_url="https://api.linkcloud.sh/v1",
+)
+
+resp = client.chat.completions.create(
+    model="gpt-6-astra",
+    messages=[{"role": "user", "content": "只回复 OK"}],
+)
+print(resp.choices[0].message.content)
+```
+
+```javascript title="javascript"
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: "YOUR_LINKCLOUD_API_KEY",
+  baseURL: "https://api.linkcloud.sh/v1",
+});
+
+const resp = await client.chat.completions.create({
+  model: "gpt-6-astra",
+  messages: [{ role: "user", content: "只回复 OK" }],
+});
+console.log(resp.choices[0].message.content);
+```
+
+## 第四步：核对结果
+
+到[使用记录](https://api.linkcloud.sh/usage)找到本次请求，确认三件事：
+
+1. 使用的 Key 和模型与你发出的请求一致。
+2. 扣费金额与所选分组的倍率相符。
+3. 状态码正常，没有报错。
+
+## 如果 curl 成功但客户端失败
+
+说明服务和网络没问题，问题在客户端一侧。按顺序对比：
+
+| 对比项 | 常见差异 |
+| --- | --- |
+| 端点 | 少写或多写了 `/v1`；自行拼了 `/chat/completions` |
+| 协议 | 客户端发的是 Anthropic 格式，分组只支持 OpenAI 格式 |
+| 模型 ID | 简写、大小写不一致，或不在该分组内 |
+| 密钥 | 客户端仍在用旧 Key，需要完全重启 |
+| 代理 | 客户端走了本地代理或证书拦截 |
+
+这些命令没有覆盖流式响应、工具调用、图片和 WebSocket，遇到这类问题要在原功能上继续验证。
+
+## 相关入口
+
+- [API 端点](/endpoints) — 地址、线路与认证
+- [协议与兼容性](/protocols) — 各协议的完整示例
+- [排障](/troubleshooting) — 按症状定位问题
+- [错误码](/errors) — 错误原文对照

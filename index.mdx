@@ -1,20 +1,62 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "LinkCloud 文档"
+description: "LinkCloud 是统一的大模型 API 网关。用一个 API Key，在各类客户端中调用 Claude、GPT、Gemini 等模型。"
+keywords: ["LinkCloud", "API 文档", "大模型网关", "API Key", "Claude Code", "Codex"]
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+LinkCloud 是统一的大模型 API 网关。你只需要一个 API Key，就能在 Claude Code、Codex、CC-Switch、OpenCode 或自己的程序里调用 Claude、GPT、Gemini 等模型，不必分别维护各家订阅。
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+所有请求走同一组端点，计费统一折算到账户余额，用量在控制台里可查。
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+## 从这里开始
+
+<Columns cols={2}>
+  <Card title="快速开始" icon="rocket" href="/quickstart">
+    五步完成第一次调用，并确认接入成功。
+  </Card>
+  <Card title="创建 API Key" icon="key" href="/create-api-key">
+    选择分组，生成第一个密钥。
+  </Card>
+  <Card title="API 端点" icon="link" href="/endpoints">
+    客户端里要填的 Base URL 和备用线路。
+  </Card>
+  <Card title="模型与分组" icon="layer-group" href="/models">
+    每个分组包含哪些模型、协议和倍率。
+  </Card>
+</Columns>
+
+## 你可能需要的
+
+<Columns cols={2}>
+  <Card title="核心概念" icon="book" href="/concepts">
+    分组、倍率、协议、余额分别指什么。
+  </Card>
+  <Card title="排障" icon="stethoscope" href="/troubleshooting">
+    连不上、报错、没有回复时的排查顺序。
+  </Card>
+  <Card title="账户与费用" icon="credit-card" href="/account/billing">
+    充值、兑换码、用量核对与团队。
+  </Card>
+  <Card title="错误码" icon="triangle-exclamation" href="/errors">
+    按状态码和报错原文定位问题。
+  </Card>
+</Columns>
+
+## 服务入口
+
+| 用途 | 地址 |
+| --- | --- |
+| 控制台（登录、创建密钥、充值、用量） | [api.linkcloud.sh](https://api.linkcloud.sh) |
+| OpenAI 兼容 API | `https://api.linkcloud.sh/v1` |
+| Anthropic 兼容 API | `https://api.linkcloud.sh` |
+| 模型广场（分组、倍率、模型与价格） | [api.linkcloud.sh/models](https://api.linkcloud.sh/models) |
+| 服务状态监测 | [codex-status.linkcloud.sh](https://codex-status.linkcloud.sh) |
+| 工单系统 | [ticket.linkcloud.sh](https://ticket.linkcloud.sh) |
+
+<Info>
+需要协助时，可以通过以下渠道联系我们：QQ 群 `1043343946`，Telegram 群 [t.me/linkcodexapi](https://t.me/linkcodexapi)，或在[工单系统](https://ticket.linkcloud.sh)提交工单。
+</Info>
+
+<Warning>
+LinkCloud 仅向[支持的国家和地区](/legal/supported-regions)提供服务。注册和使用即表示你已阅读并同意[服务条款](/legal/terms)与[使用政策](/legal/usage-policy)。
+</Warning>

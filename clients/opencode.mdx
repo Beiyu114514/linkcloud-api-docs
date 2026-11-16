@@ -1,0 +1,81 @@
+---
+title: "OpenCode"
+description: "在 OpenCode 中把 LinkCloud 配成自定义供应商，用同一个 Key 调用不同厂商的模型。"
+keywords: ["OpenCode", "opencode.json", "自定义供应商", "baseURL"]
+---
+
+`OpenCode` 是开源终端 Agent，支持多渠道供应商，适合需要随时切换模型的场景。它使用 OpenAI 兼容格式。
+
+## 选择分组
+
+OpenCode 会按你配置的供应商发送 OpenAI 格式请求，因此**分组必须支持 OpenAI 格式**。例如：
+
+| 分组 | 倍率 | 可用模型示例 |
+| --- | --- | --- |
+| `chatgpt_plus` | 1.5 | `gpt-6-astra`、`gpt-6.1-sol` |
+| `cn_llm_openai` | 2 | `deepseek-v4-pro-0813`、`kimi-k3`、`glm-5.3` |
+| `claude_kiro` | 2 | `claude-sonnet-4-5`、`claude-opus-4-6` |
+| `gemini_openai` | 3.5 | `gemini-3.8-flash`、`gemini-4-argon` |
+
+完整清单见[模型与分组](/models)。只接受 Anthropic 格式或限定了客户端的分组不适用。
+
+## 配置
+
+配置文件路径：
+
+- `~/.config/opencode/opencode.json`（或 `opencode.jsonc`），不存在时新建。
+
+把 LinkCloud 配成一个自定义供应商：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "linkcloud": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LinkCloud",
+      "options": {
+        "baseURL": "https://api.linkcloud.sh/v1",
+        "apiKey": "YOUR_LINKCLOUD_API_KEY"
+      },
+      "models": {
+        "gpt-6-astra": { "name": "GPT-6 Astra" },
+        "claude-sonnet-4-5": { "name": "Claude Sonnet 4.5" },
+        "deepseek-v4-pro-0813": { "name": "DeepSeek V4 Pro 0813" }
+      }
+    }
+  }
+}
+```
+
+几点说明：
+
+- `models` 里只需要列你实际会用的模型，键名必须是分组内的完整模型 ID。
+- 密钥也可以不写进配置文件，改用 OpenCode 的 `/connect` 流程录入。
+- 一个供应商只能绑定一个分组。要用多个分组，就配多个供应商，或使用[复合 Key](/create-api-key#模型控制)。
+
+<Warning>
+把密钥写进配置文件时，注意不要把这个文件提交到仓库。
+</Warning>
+
+## 验证接入
+
+启动 OpenCode，在模型列表里选择刚才配置的模型，发送「只回复 OK」。收到回复后到[使用记录](https://api.linkcloud.sh/usage)核对模型与扣费。
+
+默认线路较慢时，把 `baseURL` 换成 **OpenAI 端点 中国优化**（`https://api-us-co.linkcloud.sh/v1`）。
+
+## 常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 模型列表里看不到新供应商 | 检查配置文件路径与 JSON 语法，重启 OpenCode |
+| 报模型不存在 | `models` 里的键名必须是分组内的完整模型 ID |
+| 请求被拒绝且提示协议 | 该分组不接受 OpenAI 格式，换分组 |
+| 401 认证失败 | 确认密钥完整、无多余空格；改用 `/connect` 重新录入 |
+
+## 相关入口
+
+- [协议与兼容性](/protocols) — OpenAI 格式的示例请求
+- [模型与分组](/models) — 各分组支持的协议
+- [创建 API Key](/create-api-key) — 分组与限额
+- [排障](/troubleshooting) — 请求失败的排查顺序

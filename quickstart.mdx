@@ -1,47 +1,75 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "快速开始"
+description: "从注册到发送第一条请求，完成 LinkCloud 接入并确认调用成功。"
+keywords: ["快速开始", "接入流程", "Base URL", "API Key"]
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
+下面是从零到第一次成功调用的完整流程。整个过程大约需要 10 分钟。
 
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+## 开始之前
 
-## Prerequisites
+你需要：
 
-Before you begin, you must have:
+- 一个 LinkCloud 账号，并完成邮箱验证。支持的邮箱域名见[注册与邮箱](/faq#注册与邮箱)。
+- 账户余额。可以在[控制台](https://api.linkcloud.sh/purchase)充值，或使用兑换码。
+- 一个已安装好的客户端，例如 [Claude Code](/clients/claude-code) 或 [Codex](/clients/codex)。不想装客户端时，用 [curl](/clients/curl) 也能验证。
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+## 接入流程
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
-
-    ```bash
-    npm install your-package
-    ```
+  <Step title="确认目标模型和分组">
+    打开[模型广场](https://api.linkcloud.sh/models)，搜索你要用的模型，记下它所属的**分组**。分组决定可用模型、计费倍率、接受的协议格式和客户端限制，详见[模型与分组](/models)。
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="充值或兑换余额">
+    在[充值页面](https://api.linkcloud.sh/purchase)在线充值，或在[兑换页面](https://api.linkcloud.sh/redeem)使用兑换码。计费与扣费顺序见[余额与计费](/account/billing)。
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
 
-    ```bash
-    your-cli start
-    ```
+  <Step title="创建 API Key">
+    进入[API 密钥页面](https://api.linkcloud.sh/keys)，点击**创建密钥**，填写名称并选择上一步确认的分组。创建后立即复制密钥，详见[创建 API Key](/create-api-key)。
+  </Step>
+
+  <Step title="配置客户端">
+    在客户端里填入三样东西：端点地址、API Key、模型 ID。按所用客户端查看：
+
+    | 客户端 | 教程 | 适用场景 |
+    | --- | --- | --- |
+    | Claude Code | [教程](/clients/claude-code) | Anthropic 官方 CLI，终端编程 |
+    | Codex | [教程](/clients/codex) | OpenAI 官方 CLI 与桌面端 |
+    | CC-Switch | [教程](/clients/cc-switch) | 图形化管理 Claude Code / Codex 配置 |
+    | OpenCode | [教程](/clients/opencode) | 开源终端 Agent，多模型切换 |
+    | 通用 / 自建程序 | [教程](/clients/curl) | curl、OpenAI SDK、任意兼容客户端 |
+
+    端点地址的选择见 [API 端点](/endpoints)，协议格式见[协议与兼容性](/protocols)。
+  </Step>
+
+  <Step title="发送第一条请求">
+    在客户端里选择目标模型，新建对话，发送「只回复 OK」。这一步会产生费用。
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## 确认接入成功
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
-</Tip>
+1. 收到模型的文本回复，而不只是看到模型列表或「配置已保存」提示。
+2. 打开[使用记录](https://api.linkcloud.sh/usage)，找到本次请求，核对使用的 Key、模型和扣费金额。
+3. 确认扣费金额与你所选分组的倍率相符。
+
+这只能确认本次文本对话成功。如果需要工具调用、图片或流式响应，再单独验证对应能力。
+
+<Note>
+收到回复但使用记录里找不到请求时，先核对时间范围、账号和 Key，再检查客户端是否真的发出了请求，见[排障](/troubleshooting)。
+</Note>
+
+## 下一步
+
+- [创建 API Key](/create-api-key) — 为不同客户端分别建 Key，便于识别与停用
+- [用量与导出](/account/usage) — 按 Key、模型、时间查看消耗
+- [创作台](/creative) — 不写代码，在网页上直接生图
+- [团队](/account/team) — 多人共用一个账户的余额
+- [邀请返利](/account/affiliate) — 邀请好友获得返利
+
+## 遇到问题
+
+- [排障](/troubleshooting) — 按症状定位问题，含反馈模板
+- [错误码](/errors) — 完整错误信息清单
+- [FAQ](/faq) — 注册、邮箱、模型检测等常见问题

@@ -1,0 +1,138 @@
+---
+title: "Claude Code"
+description: "把 Claude Code 接到 LinkCloud：安装、配置 Anthropic 格式端点、验证调用，以及 claude_max 分组的限制。"
+keywords: ["Claude Code", "ANTHROPIC_BASE_URL", "ANTHROPIC_AUTH_TOKEN", "claude_max"]
+---
+
+`Claude Code` 是 Anthropic 的终端编程助手。它走 Anthropic Messages 协议，所以端点填不带 `/v1` 的地址。
+
+## 安装
+
+<CodeGroup>
+
+```bash npm
+npm install -g @anthropic-ai/claude-code
+```
+
+```bash 安装脚本（macOS / Linux）
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+```bash npx
+npx @anthropic-ai/claude-code
+```
+
+</CodeGroup>
+
+安装后运行 `claude --version` 确认可用。
+
+## 选择分组
+
+Claude 模型分布在两个分组里：
+
+| 分组 | 倍率 | 说明 |
+| --- | --- | --- |
+| `claude_kiro` | 2 | 不保证缓存命中率，输出风格与官方有区别 |
+| `claude_max` | 12 | 官方订阅 MAX 号池，**仅限 Claude Code 使用** |
+
+在 [API 密钥页面](https://api.linkcloud.sh/keys) 创建 Key 时选一个，或在模型广场确认目标模型属于哪个分组。
+
+## 配置
+
+### 方式一：控制台「使用密钥」
+
+在密钥列表点击**使用密钥**，选择 `Claude Code`，页面会生成可直接复制的环境变量或 `settings.json`。这是最不容易出错的配置方式。
+
+### 方式二：手动设置环境变量
+
+**macOS / Linux**
+
+```bash
+export ANTHROPIC_BASE_URL="https://api.linkcloud.sh"
+export ANTHROPIC_AUTH_TOKEN="YOUR_LINKCLOUD_API_KEY"
+```
+
+**Windows PowerShell**
+
+```powershell
+$env:ANTHROPIC_BASE_URL="https://api.linkcloud.sh"
+$env:ANTHROPIC_AUTH_TOKEN="YOUR_LINKCLOUD_API_KEY"
+```
+
+**Windows CMD**
+
+```cmd
+set ANTHROPIC_BASE_URL=https://api.linkcloud.sh
+set ANTHROPIC_AUTH_TOKEN=YOUR_LINKCLOUD_API_KEY
+```
+
+`ANTHROPIC_AUTH_TOKEN` 会以 `Authorization: Bearer` 发送；也可以改用 `ANTHROPIC_API_KEY`，它会以 `x-api-key` 发送。两种请求头 LinkCloud 都接受，参见 [API 端点](/endpoints#认证)。
+
+### 方式三：写入 settings.json
+
+VS Code 等编辑器里的 Claude Code 扩展不一定继承终端环境变量。这种情况下把配置写进用户级 `settings.json`：
+
+- macOS / Linux：`~/.claude/settings.json`
+- Windows：`%userprofile%\.claude\settings.json`
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.linkcloud.sh",
+    "ANTHROPIC_AUTH_TOKEN": "YOUR_LINKCLOUD_API_KEY"
+  }
+}
+```
+
+<Warning>
+`settings.json` 含明文密钥。不要把它提交到项目仓库，也不要放在会被共享的目录里。
+</Warning>
+
+### 指定模型（可选）
+
+默认模型由 Claude Code 决定。要固定到某个分组内的模型，可以设置：
+
+```bash
+export ANTHROPIC_MODEL="claude-sonnet-4-5"
+```
+
+模型 ID 必须是该分组内的完整 ID，从[模型与分组](/models)或模型广场复制。
+
+## 验证接入
+
+```bash
+claude --version
+claude -p "只回复 OK" --model claude-sonnet-4-5
+```
+
+这会发起真实请求并产生费用。收到回复后，到[使用记录](https://api.linkcloud.sh/usage)核对本次请求的模型和扣费。
+
+如果网络访问默认线路不稳定，把 `ANTHROPIC_BASE_URL` 换成 **Anthropic 端点 中国优化**（`https://api-us-co.linkcloud.sh`），或按需使用源站直连线路。线路列表见 [API 端点](/endpoints#备用线路)。
+
+## claude_max 分组
+
+`claude_max` 分组只接受 Claude Code 官方客户端。用 Claude 应用、curl 或其他工具调用该分组的模型会被拒绝，或被降级到其他分组。
+
+需要注意的几点：
+
+- 该分组不能用于 Claude 桌面或网页应用。
+- 该分组不能用于 OpenCode、Codex 等其他客户端。
+- 如果只是想在终端里写代码，用 `claude_kiro` 更容易配合其他工具。
+
+## 常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 提示认证失败 | 确认环境变量已生效，且客户端读取的是最新配置；部分情况下需要完全退出后重启 |
+| 报错里带 `claude_max` 或客户端限制字样 | 换用 `claude_kiro` 分组，或改用 Claude Code |
+| 模型不存在 | 该模型不在 Key 绑定的分组内，核对[模型与分组](/models) |
+| 连不上或超时 | 换用中国优化线路；确认地址是 `https://` 且没有自行拼上 `/v1/messages` |
+
+完整的排查顺序见[排障](/troubleshooting)，错误原文对照见[错误码](/errors)。
+
+## 相关入口
+
+- [API 端点](/endpoints) — 地址与认证方式
+- [创建 API Key](/create-api-key) — 分组、限额与有效期
+- [CC-Switch](/clients/cc-switch) — 图形化管理 Claude Code 配置
+- [排障](/troubleshooting) — 认证失败与模型错误

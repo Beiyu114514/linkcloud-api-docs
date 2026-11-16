@@ -1,0 +1,246 @@
+---
+title: "模型与分组"
+description: "LinkCloud 各分组包含的模型、支持的协议、上下文长度与计费维度。"
+keywords: ["模型列表", "分组", "模型 ID", "上下文", "协议"]
+---
+
+下面按分组列出当前可用的模型。**请求里要填写的是「模型 ID」这一列**，建议直接从[模型广场](https://api.linkcloud.sh/models)复制，不要简写。
+
+<Info>
+本页数据取自模型广场的公开接口，倍率与模型清单会随上架和调价变化。价格、折扣、可用性和容量请以[模型广场](https://api.linkcloud.sh/models)实时显示为准。
+</Info>
+
+## 分组一览
+
+| 分组 | 品牌 | 分组倍率 | 模型数 | 计费方式 | 说明 |
+| --- | --- | --- | --- | --- | --- |
+| `free` | OpenAI | 0.001 | 2 | 按 token | 由神秘渠道提供的公益免费模型 |
+| `chatgpt_plus` | OpenAI | 1.5 | 9 | 按 token | 支持满血GPT6.1，在可用性上尽力而为 |
+| `cn_llm_openai` | DeepSeek | 2 | 7 | 按 token | 国产大模型低价渠道，不保证稳定性 |
+| `claude_kiro` | Anthropic | 2 | 13 | 按 token | 不保证缓存命中率，因Kiro存在内置提示词，输出风格跟官方有区别 |
+| `chatgpt_pro` | OpenAI | 3 | 9 | 按 token | 优先保证可用性，不含日抛PLUS的官方订阅稳定渠道 |
+| `supergrok_openai` | xAI | 3.5 | 3 | 按 token | Grok Heavy号池，OpenAI 请求格式 |
+| `gemini_openai` | Google | 3.5 | 5 | 按 token | 谷歌Antigravity ，Gemini CLI 等官方逆向渠道 |
+| `glm_openai` | 智谱 | 6 | 2 | 按 token | GLM 稳定三方渠道，OpenAI请求格式 |
+| `gpt_image` | OpenAI | 8 | 5 | 按张 | 按张计费，价格只由生成图片的实际尺寸（1K / 2K / 4K）决定 |
+| `chatgpt_pro_official` | OpenAI | 10 | 9 | 按 token | ChatGPT正价渠道，推荐企业和蒸馏业务接入 |
+| `claude_max` | Anthropic | 12 | 17 | 按 token | 官方订阅MAX号池，限制Claude Code使用 |
+
+模型 ID 命名规则不统一：`claude-*`、`gpt-*`、`gemini-*` 用小写加连字符，`cn_llm_openai` 与 `free` 分组的部分模型是`-`分隔的版本号，请以表格为准。
+
+## 分组详情
+
+### `free` · OpenAI
+
+由神秘渠道提供的公益免费模型。
+
+- 分组倍率：**0.001**
+- 模型数：2
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `DeepSeek-V4.1-Flash` | DeepSeek V4.1 Flash | 1,048,576 | 384,000 | 文本、图片 | 推理、工具调用、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `step-5-preview` | Step 5 Preview | 1,000,000 | 65,536 | 文本、图片、视频 | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `chatgpt_plus` · OpenAI
+
+支持满血GPT6.1，在可用性上尽力而为。
+
+- 分组倍率：**1.5**
+- 模型数：9
+- 近 7 天探测可用率：**100%**（323 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `codex-auto-review` | codex-auto-review | — | — | — | — | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-luna` | GPT-5.6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-sol` | GPT-5.6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-terra` | GPT-5.6 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-astra` | GPT-6 Astra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-luna` | GPT-6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-sol` | GPT-6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-sol` | GPT-6.1 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-terra` | GPT-6.1 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `cn_llm_openai` · DeepSeek
+
+国产大模型低价渠道，不保证稳定性。
+
+- 分组倍率：**2**
+- 模型数：7
+- 近 7 天探测可用率：**100%**（324 / 324）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `deepseek-v4-pro-0813` | DeepSeek V4 Pro 0813 | 1,000,000 | 384,000 | 文本 | 推理、工具调用 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `deepseek-v4.1-flash-1017` | DeepSeek V4.1 Flash 1017 | 1,000,000 | 384,000 | 文本、图片 | 推理、工具调用、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `glm-5.3` | GLM-5.3 | 1,000,000 | 131,072 | 文本 | 推理、工具调用、结构化输出 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `glm-5.3-flash` | GLM-5.3-Flash | 1,000,000 | 131,072 | 文本、图片、视频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `kimi-k3` | Kimi K3 | 1,048,576 | 1,048,576 | 文本、图片、视频 | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `kimi-k3.1-pro` | Kimi K3.1 Pro | 1,048,576 | 1,048,576 | 文本、图片、视频 | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `minimax-m3` | MiniMax-M3 | 1,000,000 | 524,288 | 文本、图片、视频 | 推理、工具调用、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `claude_kiro` · Anthropic
+
+不保证缓存命中率，因Kiro存在内置提示词，输出风格跟官方有区别。
+
+- 分组倍率：**2**
+- 模型数：13
+- 近 7 天探测可用率：**98.8%**（319 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `claude-haiku-4-5` | Claude Haiku 4.5 (latest) | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-haiku-4-5-20251001` | Claude Haiku 4.5 | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-5-20251101` | Claude Opus 4.5 | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-6` | Claude Opus 4.6 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-7` | Claude Opus 4.7 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-8` | Claude Opus 4.8 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-5` | Claude Opus 5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-5-5` | Claude Opus 5.5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-4-5` | Claude Sonnet 4.5 (latest) | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-4-5-20250929` | Claude Sonnet 4.5 | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-4-6` | Claude Sonnet 4.6 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-5` | Claude Sonnet 5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-5-5` | Claude Sonnet 5.5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+
+### `chatgpt_pro` · OpenAI
+
+优先保证可用性，不含日抛PLUS的官方订阅稳定渠道。
+
+- 分组倍率：**3**
+- 模型数：9
+- 近 7 天探测可用率：**100%**（323 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `codex-auto-review` | codex-auto-review | — | — | — | — | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-luna` | GPT-5.6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-sol` | GPT-5.6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-terra` | GPT-5.6 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-astra` | GPT-6 Astra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-luna` | GPT-6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-sol` | GPT-6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-sol` | GPT-6.1 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-terra` | GPT-6.1 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `supergrok_openai` · xAI
+
+Grok Heavy号池，OpenAI 请求格式。
+
+- 分组倍率：**3.5**
+- 模型数：3
+- 近 7 天探测可用率：**100%**（323 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `grok-4.5` | Grok 4.5 | 500,000 | 500,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `grok-4.6` | Grok 4.6 | 500,000 | 500,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `grok-4.7` | Grok 4.7 | 500,000 | 500,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `gemini_openai` · Google
+
+谷歌Antigravity ，Gemini CLI 等官方逆向渠道。
+
+- 分组倍率：**3.5**
+- 模型数：5
+- 近 7 天探测可用率：**89.1%**（287 / 322）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `gemini-3.6-flash` | Gemini 3.6 Flash | 1,048,576 | 65,536 | 文本、图片、视频、音频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gemini-3.7-flash` | Gemini 3.7 Flash | 1,048,576 | 65,536 | 文本、图片、视频、音频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gemini-3.8-flash` | Gemini 3.8 Flash | 1,048,576 | 65,536 | 文本、图片、视频、音频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gemini-4-argon` | Gemini 4 Argon | 1,048,576 | 32,768 | 文本、图片、视频、音频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gemini-4-carbon` | Gemini 4 Carbon | 1,048,576 | 32,768 | 文本、图片、视频、音频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `glm_openai` · 智谱
+
+GLM 稳定三方渠道，OpenAI请求格式。
+
+- 分组倍率：**6**
+- 模型数：2
+- 近 7 天探测可用率：**100%**（323 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `glm-5.3` | GLM-5.3 | 1,000,000 | 131,072 | 文本 | 推理、工具调用、结构化输出 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `glm-5.3-flash` | GLM-5.3-Flash | 1,000,000 | 131,072 | 文本、图片、视频、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `gpt_image` · OpenAI
+
+按张计费，价格只由生成图片的实际尺寸（1K / 2K / 4K）决定。
+
+- 分组倍率：**8**
+- 模型数：5
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `gpt-image-2` | gpt-image-2 | — | — | 文本、图片 | 附件 | Responses、图片生成、图片编辑、Responses WebSocket |
+| `gpt-image-2.5-flare` | GPT Image 2.5 Flare | — | — | 文本、图片 | 附件 | Responses、图片生成、图片编辑、Responses WebSocket |
+| `gpt-image-2.5-sunburst` | GPT Image 2.5 Sunburst | — | — | 文本、图片 | 附件 | Responses、图片生成、图片编辑、Responses WebSocket |
+| `gpt-image-2.6-flare` | GPT Image 2.6 Flare | — | — | 文本、图片 | — | Responses、图片生成、图片编辑、Responses WebSocket |
+| `gpt-image-2.6-sunburst` | GPT Image 2.6 Sunburst | — | — | 文本、图片 | — | Responses、图片生成、图片编辑、Responses WebSocket |
+
+### `chatgpt_pro_official` · OpenAI
+
+ChatGPT正价渠道，推荐企业和蒸馏业务接入。
+
+- 分组倍率：**10**
+- 模型数：9
+- 近 7 天探测可用率：**100%**（323 / 323）
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `codex-auto-review` | GPT-5.6 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-luna` | GPT-5.6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-sol` | GPT-5.6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-5.6-terra` | GPT-5.6 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-astra` | GPT-6 Astra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-luna` | GPT-6 Luna | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6-sol` | GPT-6 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-sol` | GPT-6.1 Sol | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+| `gpt-6.1-terra` | GPT-6.1 Terra | 1,050,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Responses、Chat Completions、Responses WebSocket、Responses 压缩、搜索 |
+
+### `claude_max` · Anthropic
+
+官方订阅MAX号池，限制Claude Code使用。
+
+- 分组倍率：**12**
+- 模型数：17
+
+| 模型 ID | 显示名称 | 上下文 | 最大输出 | 输入模态 | 能力 | 协议 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `claude-fable-5` | Claude Fable 5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-fable-5-1` | Claude Fable 5.1 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-fable-5-2` | Claude Fable 5.2 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-haiku-4-5` | Claude Haiku 4.5 (latest) | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-haiku-4-5-20251001` | Claude Haiku 4.5 | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-haiku-5-5` | Claude Haiku 5.5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-5` | Claude Opus 4.5 (latest) | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-5-20251101` | Claude Opus 4.5 | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-6` | Claude Opus 4.6 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-7` | Claude Opus 4.7 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-4-8` | Claude Opus 4.8 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-5` | Claude Opus 5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-opus-5-5` | Claude Opus 5.5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-4-5` | Claude Sonnet 4.5 (latest) | 200,000 | 64,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-4-6` | Claude Sonnet 4.6 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-5` | Claude Sonnet 5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+| `claude-sonnet-5-5` | Claude Sonnet 5.5 | 1,000,000 | 128,000 | 文本、图片、PDF | 推理、工具调用、结构化输出、附件 | Anthropic Messages、Responses、Chat Completions |
+
+## 说明
+
+- **模型 ID** 大小写敏感，请原样复制。
+- **上下文**与**最大输出**的单位是 token。
+- **协议**指该模型可用的请求格式。客户端用哪种格式，分组和模型就必须支持哪种，见[协议与兼容性](/protocols)。
+- **能力**列只标注文档关心的几项：推理、工具调用、结构化输出、附件。`temperature` 等参数支持情况以实际调用为准。
+- 使用复合 Key 时，模型 ID 前要加分组前缀，写成 `前缀/模型ID`。
+- 价格按模型单价和分组倍率计算，完整价目在模型广场的每个分组里。
+
+## 相关入口
+
+- [核心概念](/concepts) — 分组与倍率的含义
+- [协议与兼容性](/protocols) — 各协议的示例请求
+- [创建 API Key](/create-api-key) — 选择分组并生成密钥
+- [模型广场](https://api.linkcloud.sh/models) — 实时价格与可用性

@@ -1,0 +1,85 @@
+---
+title: "CC-Switch"
+description: "用 CC-Switch 统一管理 Claude Code 和 Codex 的供应商配置，并从 LinkCloud 控制台一键导入 API Key。"
+keywords: ["CC-Switch", "CCS", "导入到 CCS", "供应商切换"]
+---
+
+`CC-Switch` 是一个在本地管理多个供应商配置的工具。它把不同供应商的地址和密钥存成可切换的配置，避免手工改环境变量或配置文件来回切换。
+
+在 LinkCloud 上，CC-Switch 主要用于两件事：
+
+- 在多个 LinkCloud 分组（或 LinkCloud 与其他供应商）之间快速切换
+- 把 API Key 一键写入客户端配置，不用手动拼环境变量
+
+## 前置条件
+
+- 已安装 CC-Switch，并且已注册浏览器协议处理程序。未安装时，控制台的导入按钮会提示 `CC-Switch is not installed or the protocol handler is not registered`。
+- 已创建一个 [API Key](/create-api-key)，并确认好它绑定的分组。
+
+## 从控制台导入
+
+<Steps>
+  <Step title="打开 API 密钥页面">
+    进入 [api.linkcloud.sh/keys](https://api.linkcloud.sh/keys)。
+  </Step>
+
+  <Step title="点击「导入到 CCS」">
+    在目标 Key 的操作菜单里选择**导入到 CCS**。浏览器会唤起 CC-Switch 的导入弹窗。
+  </Step>
+
+  <Step title="选择客户端类型">
+    弹窗里选择要导入的目标：
+
+    | 选项 | 作用 |
+    | --- | --- |
+    | Claude Code | 作为 Claude Code 供应商导入 |
+    | Gemini CLI | 作为 Gemini CLI 供应商导入 |
+  </Step>
+
+  <Step title="在 CC-Switch 中确认">
+    回到 CC-Switch，确认导入的供应商信息，然后在对应客户端页面启用它。
+  </Step>
+
+  <Step title="重启客户端">
+    启用后重启 Claude Code（或其他目标客户端），让它重新读取配置。
+  </Step>
+</Steps>
+
+<Note>
+如果导入按钮没有反应，通常是协议处理程序未注册。可以先启动一次 CC-Switch，或在 CC-Switch 设置里重新注册协议处理程序，然后重试。
+</Note>
+
+## 手动添加供应商
+
+不想用一键导入时，可以在 CC-Switch 里按下面的值手动新建一个供应商：
+
+| 字段 | Claude Code | Codex |
+| --- | --- | --- |
+| Base URL | `https://api.linkcloud.sh` | `https://api.linkcloud.sh/v1` |
+| API Key | 你的 LinkCloud Key | 你的 LinkCloud Key |
+| 协议 | Anthropic Messages | OpenAI Responses |
+
+网络访问默认线路不稳定时，Base URL 换成对应的中国优化线路，见 [API 端点](/endpoints#备用线路)。
+
+## 为什么按用途分 Key
+
+CC-Switch 让切换变简单，也容易让人一直用同一个 Key。建议仍然按客户端或项目分别创建 Key：
+
+- 某个客户端配置出问题时，可以直接停用对应的 Key，不影响其他工具
+- 用量记录里更容易看出是哪个客户端在消耗
+- 每个 Key 可以设置独立的限额、限速和有效期
+
+## 常见问题
+
+| 现象 | 处理 |
+| --- | --- |
+| 浏览器没有唤起 CC-Switch | 确认 CC-Switch 已安装并注册协议处理程序 |
+| 导入后客户端仍报认证失败 | 在 CC-Switch 中确认该供应商已启用，然后完全重启客户端 |
+| 切换供应商后模型报不存在 | 不同分组的模型清单不同，切换分组时要同步调整模型 ID |
+
+## 相关入口
+
+- [Claude Code](/clients/claude-code) — Anthropic 格式客户端配置
+- [Codex](/clients/codex) — Responses 格式客户端配置
+- [创建 API Key](/create-api-key) — 分组、限额与有效期
+- [API 端点](/endpoints) — 地址与认证方式
