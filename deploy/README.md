@@ -2,7 +2,7 @@
 
 文档站点托管在 Mintlify，本目录放自定义域名的接入配置。
 
-> **本项目采用路线 A：CNAME 直连。** 路线 B 的两个配置文件（`cloudflare-worker.js`、`nginx-docs.conf`）保留在 `deploy/` 下作为备选，当前未启用。
+> **当前采用：路线 B 的 1Panel 反向代理**，上游为 `https://linkcloud-api.mintlify.site`。路线 A（CNAME）保留作为可选方案。
 
 ## 前置条件
 
@@ -11,7 +11,7 @@
 
 ## 两条路线
 
-| | A. CNAME 直连（本项目采用） | B. 自建反向代理（备选，未启用） |
+| | A. CNAME 直连（可选） | B. 自建反向代理（当前采用） |
 | --- | --- | --- |
 | 做法 | `docs.linkcloud.sh` CNAME 到 `cname.mintlify.builders` | 自己的 Cloudflare Worker / nginx 转发到 `<子域>.mintlify.site` |
 | TLS | Mintlify 自动签发 | 你自己的证书 |
@@ -88,7 +88,33 @@ curl -sS https://docs.linkcloud.sh/llms.txt | head -5
 
 浏览器里确认：页面正常打开，搜索可用，页面源码里的 `canonical` 指向 `https://docs.linkcloud.sh`。
 
-## 路线 B：自建反向代理（备选，未启用）
+## 路线 B：自建反向代理（当前采用）
+
+上游：`https://linkcloud-api.mintlify.site`（已发布，返回 200）。
+
+### 1Panel（当前采用）
+
+配置文件见 `deploy/1panel-reverse-proxy.conf`，操作路径：
+
+1. **网站 → 创建网站**，类型选静态网站，域名 `docs.linkcloud.sh`。
+2. **网站 → 配置 → HTTPS**，申请 Let's Encrypt 证书并开启强制 HTTPS。
+3. **网站 → 配置 → 反向代理 → 添加反向代理**：
+
+   | 字段 | 值 |
+   | --- | --- |
+   | 名称 | `mintlify-docs` |
+   | 代理地址 | `https://linkcloud-api.mintlify.site` |
+   | 发送域名 | `linkcloud-api.mintlify.site` |
+   | 缓存 | 关闭 |
+
+4. **网站 → 配置 → 配置文件**，确认生成的 `location ^~ /` 里包含 `proxy_ssl_server_name on;`。1Panel 默认不一定加这一行，缺了它 HTTPS 上游会握手失败。
+5. 保存并重载 OpenResty。
+
+三个必须满足的条件：
+
+- `Host` 用上游域名，**不要**透传 `docs.linkcloud.sh`。
+- HTTPS 上游开启 SNI（`proxy_ssl_server_name on` + `proxy_ssl_name`）。
+- `/.well-known/acme-challenge/` 不要被代理走，否则证书续期失败。
 
 ### Cloudflare Worker
 
@@ -120,6 +146,7 @@ Worker 用绝对 URL 请求上游，因此 `Host` 会自动变成 `<子域>.mint
 - **WAF / Bot Fight Mode**：若拦截了 `/mintlify-assets/`，需要加一条跳过规则。
 - **重定向**：上游返回的 `Location` 若指向 `<子域>.mintlify.site`，Worker 会改写成正式域名；nginx 需要在 `proxy_redirect` 里处理。
 - **分析**：代理方案下最容易漏掉的是 `/_mintlify/api/` 的 POST 上报。上线后在仪表盘确认能看到访问数据。
+- **sitemap 与 llms.txt 的绝对地址**：用代理接入时 Mintlify 不认为自定义域名已注册，`/sitemap.xml` 和 `/llms.txt` 里的链接仍指向默认地址（当前是 `linkcloud-api.mintlify.app`）。页面自身的 `canonical` 与 `og:url` 已指向 `https://docs.linkcloud.sh`，SEO 不受影响；若需要 sitemap 内地址也正确，只能改回 CNAME 接入并在 Mintlify 注册域名。
 
 ## 参考
 
