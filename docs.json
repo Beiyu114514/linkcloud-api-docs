@@ -71,6 +71,11 @@
       }
     ]
   },
+  "banner": {
+    "content": "本文档由 AI 生成整理，可能存在错误、遗漏或过时内容，请以控制台和模型广场的实时显示为准。如有错误或疑问，欢迎反馈给客服。",
+    "type": "info",
+    "dismissible": true
+  },
   "navbar": {
     "links": [
       {
@@ -91,6 +96,44 @@
       "label": "控制台",
       "href": "https://api.linkcloud.sh"
     }
+  },
+  "footer": {
+    "links": [
+      {
+        "header": "反馈",
+        "items": [
+          {
+            "label": "工单系统",
+            "href": "https://ticket.linkcloud.sh"
+          },
+          {
+            "label": "Telegram 群",
+            "href": "https://t.me/linkcodexapi"
+          },
+          {
+            "label": "服务状态",
+            "href": "https://codex-status.linkcloud.sh"
+          }
+        ]
+      },
+      {
+        "header": "产品",
+        "items": [
+          {
+            "label": "控制台",
+            "href": "https://api.linkcloud.sh"
+          },
+          {
+            "label": "模型广场",
+            "href": "https://api.linkcloud.sh/models"
+          },
+          {
+            "label": "用量查询",
+            "href": "https://api.linkcloud.sh/key-usage"
+          }
+        ]
+      }
+    ]
   },
   "contextual": {
     "options": [
